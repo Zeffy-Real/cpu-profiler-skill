@@ -1,0 +1,12 @@
+[Unit]
+Description=CPU Profiler - REST API Server
+After=cpu-profiler-collector.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -m uvicorn src.api.server:app --host 0.0.0.0 --port 8765
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

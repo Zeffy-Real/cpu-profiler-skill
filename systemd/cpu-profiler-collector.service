@@ -1,0 +1,16 @@
+[Unit]
+Description=CPU Profiler - Continuous Collector
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -m src.collector.daemon
+Restart=always
+RestartSec=5
+Environment=PROFILER_DATA_DIR=/var/lib/cpu-profiler
+Environment=PROFILER_SAMPLE_FREQ=99
+Environment=PROFILER_SLICE_DURATION=30
+Environment=PROFILER_RETENTION_HOURS=2
+
+[Install]
+WantedBy=multi-user.target
