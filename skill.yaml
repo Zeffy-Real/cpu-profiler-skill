@@ -1,41 +1,50 @@
 name: cpu-profiler
-version: 1.0.0
-description: "7x24 continuous CPU profiling tool with perf black-box mode"
-author: Zeffy-Real
-license: MIT
+version: "1.0.0"
+description: >
+  Linux continuous CPU profiling tool. Runs perf as a background daemon
+  with time-sliced recording. Query by time to generate flame graphs
+  for root cause analysis.
 
 parameters:
-  sample_freq:
-    description: "Sampling frequency in Hz"
-    default: 99
-    type: integer
-    range: [1, 999]
-  slice_duration:
-    description: "Duration of each profiling slice in seconds"
-    default: 30
-    type: integer
-  retention_hours:
-    description: "Data retention period in hours"
-    default: 2
-    type: integer
   data_dir:
-    description: "Data storage directory"
+    description: Directory for storing perf data files
     default: /var/lib/cpu-profiler
-    type: path
+  sample_freq:
+    description: Sampling frequency in Hz
+    default: 99
+  slice_duration:
+    description: Duration of each recording slice in seconds
+    default: 30
+  retention_hours:
+    description: How long to keep profiling data
+    default: 2
+  api_host:
+    description: API server bind address
+    default: 0.0.0.0
   api_port:
-    description: "REST API port"
+    description: API server port
     default: 8765
-    type: integer
 
 dependencies:
-  system:
-    - perf
-    - flamegraph.pl
-    - stackcollapse-perf.pl
-  python:
-    - fastapi>=0.100
-    - uvicorn[standard]>=0.20
-    - pydantic>=2.0
+  - perf (linux-tools)
+  - flamegraph.pl (FlameGraph)
+  - stackcollapse-perf.pl (FlameGraph)
+  - python3 >= 3.10
+  - fastapi
+  - uvicorn
+  - pydantic
 
-install: ./install.sh
-start: systemctl start cpu-profiler-collector cpu-profiler-api
+install: |
+  sudo bash install.sh
+
+start: |
+  sudo systemctl start cpu-profiler-collector cpu-profiler-api
+
+stop: |
+  sudo systemctl stop cpu-profiler-collector cpu-profiler-api
+
+status: |
+  sudo systemctl status cpu-profiler-collector cpu-profiler-api
+
+verify: |
+  curl http://localhost:8765/api/v1/health
